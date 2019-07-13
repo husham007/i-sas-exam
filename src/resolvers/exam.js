@@ -78,7 +78,14 @@ export default {
         const exam = await models.Exam.create(examInput);
         return exam;
       }
-    )
-    ,
+    ),
+    publishExam: combineResolvers(
+      isTest, async (parent, { examId, examDateAndTime, duration }, { me, models }) => {
+        const exam =  await models.Exam.findOneAndUpdate(
+          {_id: examId}, { $set: {duration: duration, startTime: examDateAndTime}}, 
+          {returnNewDocument : true});    
+        return exam;
+      }
+    ),
   }
 }

@@ -18,10 +18,14 @@ extend type Mutation {
     
 
     createExam (examInput: ExamInput!): Exam!
+    publishExam (examId: ID!, examDateAndTime: Date!, duration: String!): Exam!
     
 
     
 }
+
+
+scalar Date
 
 type Exam @key (fields: "id questions"){
     id: ID!
@@ -29,7 +33,7 @@ type Exam @key (fields: "id questions"){
     name: String!
     type: String!
     instructions: String!
-    startTime: String
+    startTime: Date
     duration: String
     book: String!
     questions: [String]
