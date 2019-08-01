@@ -4,6 +4,7 @@ export default gql `
 extend type Query {
    
     exams: [Exam]
+    examSolutions: [ExamSolution]
     examsByBook (name: String!): [Exam]
     exam(id: ID!): Exam
     
@@ -19,6 +20,8 @@ extend type Mutation {
 
     createExam (examInput: ExamInput!): Exam!
     publishExam (examId: ID!, examDateAndTime: Date!, duration: String!): Exam!
+    initializeExamSolution (examId: ID!, userId: ID!): ExamSolution!
+    saveAnswer(examId: ID!, userId: ID!, question: ID!, marks: String!, answer: String!, time: String!): Boolean!
     
 
     
@@ -27,7 +30,7 @@ extend type Mutation {
 
 scalar Date
 
-type Exam @key (fields: "id questions"){
+type Exam @key (fields: "id"){
     id: ID!
     author: User!
     name: String!
@@ -37,11 +40,34 @@ type Exam @key (fields: "id questions"){
     duration: String
     book: String!
     questions: [String]
-    examQuestions: [QuestionWithMarks]
-    
-    
-   
+    examQuestions: [QuestionWithMarks]      
 }
+
+type ExamSolution @key (fields: "id"){
+  id: ID!
+  userId: User!
+  examId: Exam!
+  studentAnswers: [StudentAnswer]
+  markedAnswers: [MarkedAnswer]
+
+}
+
+type StudentAnswer {
+  question: Question!
+  marks: String!
+  answer: String!  
+  time: String
+}
+
+type MarkedAnswer {
+  question: Question!
+  marks: String!
+  candidateAnswer: String! 
+  obtainedMarks: String!
+  teacherRemarks: String! 
+}
+
+
 
 input ExamInput {
     name: String!

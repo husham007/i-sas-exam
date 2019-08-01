@@ -18,6 +18,14 @@ export default {
 
     },
 
+    examSolutions: async (parent, args, { models }) => {
+
+
+      return await models.ExamSolution.find();
+
+    },
+
+
     examsByBook: async (parent, { name }, { models }) => {
 
       return await models.Exam.find({ book: name });
@@ -70,6 +78,31 @@ export default {
     }
   },
 
+  StudentAnswer: {
+
+    question(answer){
+      return { __typename: "Question", id: answer.question };
+    }
+
+  },
+
+  ExamSolution: {
+    async __resolveReference(parent, { me, models }) {
+      return await models.ExamSolution.findById(parent.id)
+    },
+    userId(exam) {
+      return { __typename: "User", id: exam.userId };
+    }, 
+    async examId(exam, args, {models, me}) {
+      return await models.Exam.findById(exam.examId)
+    }, 
+    studentAnswers(exam) {
+      return [...exam.studentAnswers.values()];
+    },   
+  },
+
+
+
 
 
   Mutation: {
@@ -77,6 +110,26 @@ export default {
       isTest, async (parent, { examInput }, { me, models }) => {
         const exam = await models.Exam.create(examInput);
         return exam;
+      }
+    ),
+    initializeExamSolution: combineResolvers(
+      isTest, async (parent, {examId, userId}, { me, models }) => {
+        console.log("hello");
+        const solution = {examId, userId, status: "Initialized", studentAnswers: new Map()};        
+        const examSolution = await models.ExamSolution.create(solution);
+        return examSolution;
+      }
+    ),
+    saveAnswer: combineResolvers(
+      isTest, async (parent, {examId, userId, question, marks, answer, time}, { me, models }) => {
+       const exam = await models.ExamSolution.findOne({_id: examId});
+       exam.studentAnswers.set(question, {question, answer, marks, time});
+       if (await exam.save()){
+         return true;
+       } else {
+         return false;
+       }
+        
       }
     ),
     publishExam: combineResolvers(

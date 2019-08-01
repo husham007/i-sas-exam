@@ -1,5 +1,6 @@
 import mongoose from 'mongoose';
 import Exam from './exam';
+import ExamSolution from './examSolution';
 
 
 
@@ -27,6 +28,6 @@ const connectDb = () => {
 
 
   export { connectDb };
-  const models = {Exam};
+  const models = {Exam, ExamSolution};
 
   export default models;
