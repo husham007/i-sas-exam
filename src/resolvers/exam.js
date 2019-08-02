@@ -1,4 +1,5 @@
 import { combineResolvers } from 'graphql-resolvers';
+import { ForbiddenError } from 'apollo-server';
 import { isAuthenticated, isExamOwner, isAdmin, isTest } from './authorization';
 import { stat } from 'fs';
 
@@ -80,7 +81,7 @@ export default {
 
   StudentAnswer: {
 
-    question(answer){
+    question(answer) {
       return { __typename: "Question", id: answer.question };
     }
 
@@ -92,13 +93,13 @@ export default {
     },
     userId(exam) {
       return { __typename: "User", id: exam.userId };
-    }, 
-    async examId(exam, args, {models, me}) {
+    },
+    async examId(exam, args, { models, me }) {
       return await models.Exam.findById(exam.examId)
-    }, 
+    },
     studentAnswers(exam) {
       return [...exam.studentAnswers.values()];
-    },   
+    },
   },
 
 
@@ -113,30 +114,49 @@ export default {
       }
     ),
     initializeExamSolution: combineResolvers(
-      isTest, async (parent, {examId, userId}, { me, models }) => {
-        console.log("hello");
-        const solution = {examId, userId, status: "Initialized", studentAnswers: new Map()};        
+      isTest, async (parent, { examId, userId }, { me, models }) => {
+      
+        const solution = { examId, userId, status: "Initialized", studentAnswers: new Map() };
         const examSolution = await models.ExamSolution.create(solution);
         return examSolution;
       }
     ),
+
+    finalizeExamSolution: combineResolvers(
+      isTest, async (parent, { examId }, { me, models }) => {
+
+        const exam = await models.ExamSolution.findOne({ _id: examId });
+        if (exam) {
+          exam.status = "finalized";
+          if (await exam.save()) {
+            return true;
+          } else {
+            return false;
+
+          }
+        } else {
+          return false;
+
+        }
+      }
+    ),
     saveAnswer: combineResolvers(
-      isTest, async (parent, {examId, userId, question, marks, answer, time}, { me, models }) => {
-       const exam = await models.ExamSolution.findOne({_id: examId});
-       exam.studentAnswers.set(question, {question, answer, marks, time});
-       if (await exam.save()){
-         return true;
-       } else {
-         return false;
-       }
-        
+      isTest, async (parent, { examId, userId, question, marks, answer, time }, { me, models }) => {
+        const exam = await models.ExamSolution.findOne({ _id: examId });
+        exam.studentAnswers.set(question, { question, answer, marks, time });
+        if (await exam.save()) {
+          return true;
+        } else {
+          return false;
+        }
+
       }
     ),
     publishExam: combineResolvers(
       isTest, async (parent, { examId, examDateAndTime, duration }, { me, models }) => {
-        const exam =  await models.Exam.findOneAndUpdate(
-          {_id: examId}, { $set: {duration: duration, startTime: examDateAndTime}}, 
-          {returnNewDocument : true});    
+        const exam = await models.Exam.findOneAndUpdate(
+          { _id: examId }, { $set: { duration: duration, startTime: examDateAndTime } },
+          { returnNewDocument: true });
         return exam;
       }
     ),
