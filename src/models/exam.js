@@ -22,6 +22,9 @@ const examSchema = new mongoose.Schema({
         type: Date,
         
     },
+    timeTaken: {
+        type: String,
+    },
     duration: {
         type: String,
         

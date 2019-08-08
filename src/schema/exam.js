@@ -3,11 +3,12 @@ import { gql } from 'apollo-server-express';
 export default gql `
 extend type Query {
    
-    exams: [Exam]
-    examSolutions: [ExamSolution]
-    examsByBook (name: String!): [Exam]
+    exams: [Exam!]
+    examSolutions: [ExamSolution!]
+    examsByBook (name: String!): [Exam!]
     exam(id: ID!): Exam
-    
+    examSolution(id: ID!): ExamSolution
+
     # Fetches a Question Object given its ID.
     # question(id: ID!): Question!
     # searchQuestion (searchInput: SearchInput!): [Question]
@@ -22,8 +23,9 @@ extend type Mutation {
     publishExam (examId: ID!, examDateAndTime: Date!, duration: String!): Exam!
     initializeExamSolution (examId: ID!, userId: ID!): ExamSolution!
     saveAnswer(examId: ID!, userId: ID!, question: ID!, marks: String!, answer: String!, time: String!): Boolean!
-    finalizeExamSolution(examId: ID!, time: String): Boolean
-    
+    markAnswer(examId: ID!, questionId: ID!, obtainedMarks: String!, remarks: String!): Boolean
+    markExamSolution(examId: ID!): Boolean!    
+    finalizeExamSolution(examId: ID!, timeTaken: String): Boolean   
 
     
 }
@@ -51,8 +53,10 @@ type ExamSolution @key (fields: "id"){
   studentAnswers: [StudentAnswer]
   markedAnswers: [MarkedAnswer]
   status: String!
+  examRemarks: String
 
 }
+
 
 type StudentAnswer {
   question: Question!
@@ -66,7 +70,7 @@ type MarkedAnswer {
   marks: String!
   candidateAnswer: String! 
   obtainedMarks: String!
-  teacherRemarks: String! 
+  teacherRemarks: String 
 }
 
 

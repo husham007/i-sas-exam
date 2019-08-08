@@ -34,6 +34,9 @@ export default {
     exam: async (parent, { id }, { models }) => {
       return await models.Exam.findById(id);
     },
+    examSolution: async (parent, { id }, { models }) => {
+      return await models.ExamSolution.findById(id);
+    },
 
   },
   /*
@@ -115,19 +118,38 @@ export default {
     ),
     initializeExamSolution: combineResolvers(
       isTest, async (parent, { examId, userId }, { me, models }) => {
-      
+
         const solution = { examId, userId, status: "Initialized", studentAnswers: new Map() };
         const examSolution = await models.ExamSolution.create(solution);
         return examSolution;
       }
     ),
 
-    finalizeExamSolution: combineResolvers(
+    markExamSolution: combineResolvers(
       isTest, async (parent, { examId }, { me, models }) => {
+
+        const examSolution = await models.ExamSolution.findOne({ _id: examId });
+        examSolution.marked = true;
+
+        if (await examSolution.save()) {
+          return true;
+        } else {
+          return false;
+
+        }    
+
+      }
+    ),
+
+    finalizeExamSolution: combineResolvers(
+      isTest, async (parent, { examId, timeTaken }, { me, models }) => {
 
         const exam = await models.ExamSolution.findOne({ _id: examId });
         if (exam) {
+
           exam.status = "finalized";
+          exam.timeTaken = timeTaken;
+
           if (await exam.save()) {
             return true;
           } else {
@@ -144,6 +166,19 @@ export default {
       isTest, async (parent, { examId, userId, question, marks, answer, time }, { me, models }) => {
         const exam = await models.ExamSolution.findOne({ _id: examId });
         exam.studentAnswers.set(question, { question, answer, marks, time });
+        if (await exam.save()) {
+          return true;
+        } else {
+          return false;
+        }
+
+      }
+    ),
+
+    markAnswer: combineResolvers(
+      isTest, async (parent, { examId, questionId, obtainedMarks, remarks }, { me, models }) => {
+        const exam = await models.ExamSolution.findOne({ _id: examId });
+        exam.markedAnswers.set(questionId, { questionId, obtainedMarks, remarks});
         if (await exam.save()) {
           return true;
         } else {

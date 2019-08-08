@@ -34,6 +34,11 @@ const examSolutionSchema = new mongoose.Schema({
         type: String,       
        
     },
+
+    marked: {
+        type: Boolean,
+        value: false,
+    }
     
 },
     {
