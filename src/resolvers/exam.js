@@ -119,24 +119,57 @@ export default {
     initializeExamSolution: combineResolvers(
       isTest, async (parent, { examId, userId }, { me, models }) => {
 
-        const solution = { examId, userId, status: "Initialized", studentAnswers: new Map() };
+        const solution = { examId, userId, status: "initialized", studentAnswers: new Map() };
         const examSolution = await models.ExamSolution.create(solution);
         return examSolution;
       }
     ),
 
-    markExamSolution: combineResolvers(
+    initializeMarkingExamSolution: combineResolvers(
       isTest, async (parent, { examId }, { me, models }) => {
 
         const examSolution = await models.ExamSolution.findOne({ _id: examId });
-        examSolution.marked = true;
+        examSolution.marked = "initialized";
+        examSolution.markedAnswers = new Map();
 
         if (await examSolution.save()) {
           return true;
         } else {
           return false;
 
-        }    
+        }
+
+      }
+    ),
+
+    finalizeMarkingExamSolution: combineResolvers(
+      isTest, async (parent, { examId }, { me, models }) => {
+
+        const examSolution = await models.ExamSolution.findOne({ _id: examId });
+        examSolution.marked = "finalized";
+
+        if (await examSolution.save()) {
+          return true;
+        } else {
+          return false;
+
+        }
+
+      }
+    ),
+
+    saveExaminerRemarks: combineResolvers(
+      isTest, async (parent, { examId, remarks }, { me, models }) => {
+
+        const examSolution = await models.ExamSolution.findOne({ _id: examId });
+        examSolution.examinerRemarks = remarks;
+
+        if (await examSolution.save()) {
+          return true;
+        } else {
+          return false;
+
+        }
 
       }
     ),
@@ -163,9 +196,9 @@ export default {
       }
     ),
     saveAnswer: combineResolvers(
-      isTest, async (parent, { examId, userId, question, marks, answer, time }, { me, models }) => {
+      isTest, async (parent, { examId, questionId, marks, answer, time }, { me, models }) => {
         const exam = await models.ExamSolution.findOne({ _id: examId });
-        exam.studentAnswers.set(question, { question, answer, marks, time });
+        exam.studentAnswers.set(questionId, { questionId, answer, marks, time });
         if (await exam.save()) {
           return true;
         } else {
@@ -178,7 +211,7 @@ export default {
     markAnswer: combineResolvers(
       isTest, async (parent, { examId, questionId, obtainedMarks, remarks }, { me, models }) => {
         const exam = await models.ExamSolution.findOne({ _id: examId });
-        exam.markedAnswers.set(questionId, { questionId, obtainedMarks, remarks});
+        exam.markedAnswers.set(questionId, { questionId, obtainedMarks, remarks });
         if (await exam.save()) {
           return true;
         } else {

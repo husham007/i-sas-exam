@@ -22,9 +22,11 @@ extend type Mutation {
     createExam (examInput: ExamInput!): Exam!
     publishExam (examId: ID!, examDateAndTime: Date!, duration: String!): Exam!
     initializeExamSolution (examId: ID!, userId: ID!): ExamSolution!
-    saveAnswer(examId: ID!, userId: ID!, question: ID!, marks: String!, answer: String!, time: String!): Boolean!
-    markAnswer(examId: ID!, questionId: ID!, obtainedMarks: String!, remarks: String!): Boolean
-    markExamSolution(examId: ID!): Boolean!    
+    saveAnswer(examId: ID!, questionId: ID!, marks: String!, answer: String!, time: String!): Boolean!
+    markAnswer(examId: ID!, questionId: ID!, obtainedMarks: String!, remarks: String): Boolean
+    initializeMarkingExamSolution(examId: ID!): Boolean! 
+    finalizeMarkingExamSolution(examId: ID!): Boolean! 
+    saveExaminerRemarks(examId: ID!, remarks: String!): Boolean!
     finalizeExamSolution(examId: ID!, timeTaken: String): Boolean   
 
     

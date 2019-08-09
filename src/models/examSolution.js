@@ -30,14 +30,13 @@ const examSolutionSchema = new mongoose.Schema({
         
     },
 
-    examRemarks: {
+    examinerRemarks: {
         type: String,       
        
     },
 
     marked: {
-        type: Boolean,
-        value: false,
+        type: String,        
     }
     
 },
