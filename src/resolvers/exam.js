@@ -118,12 +118,14 @@ export default {
     ), deleteExam: combineResolvers(
       isTest, async (parent, { id }, { me, models }) => {
         
-        try{
-          await models.Exam.deleteOne({ _id: id });
-        } catch(e){
-         return false
-        }
-        return false;
+        
+          let result = await models.Exam.deleteOne({ _id: id });
+          if (result.n == 1){
+            return true
+          }
+          else{
+            return false
+          }
        
       }
     ),
