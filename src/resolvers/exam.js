@@ -119,7 +119,7 @@ export default {
       isTest, async (parent, { id }, { me, models }) => {
         let del = null;
         await models.Exam.deleteOne({ _id: id }, function (err) {
-          if (err) {return del = false} else {return del = true} ;
+          if (err) { del = false} else { del = true} ;
          
         });
         return del;
