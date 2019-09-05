@@ -20,6 +20,7 @@ extend type Mutation {
     
 
     createExam (examInput: ExamInput!): Exam!
+    deleteExam(id: ID!): Boolean!
     publishExam (examId: ID!, examDateAndTime: Date!, duration: String!): Exam!
     initializeExamSolution (examId: ID!, userId: ID!): ExamSolution!
     saveAnswer(examId: ID!, questionId: ID!, marks: String!, answer: String!, time: String!): Boolean!
@@ -41,7 +42,7 @@ type Exam @key (fields: "id"){
     name: String!
     type: String!
     instructions: String!
-    startTime: Date
+    startTime: String
     duration: String
     book: String!
     questions: [String]

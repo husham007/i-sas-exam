@@ -19,7 +19,7 @@ const examSchema = new mongoose.Schema({
         
     },
     startTime: {
-        type: Date,
+        type: String,
         
     },
     timeTaken: {

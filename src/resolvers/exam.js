@@ -111,9 +111,16 @@ export default {
 
   Mutation: {
     createExam: combineResolvers(
-      isTest, async (parent, { examInput }, { me, models }) => {
+      isAdmin, async (parent, { examInput }, { me, models }) => {
         const exam = await models.Exam.create(examInput);
         return exam;
+      }
+    ), deleteExam: combineResolvers(
+      isAdmin, async (parent, { id }, { me, models }) => {
+        models.Exam.deleteOne({ _id: id }, function (err,res) {
+          if (err) {return false} else if (res) {return true} ;
+         
+        });
       }
     ),
     initializeExamSolution: combineResolvers(
