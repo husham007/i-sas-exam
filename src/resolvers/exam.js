@@ -116,11 +116,13 @@ export default {
         return exam;
       }
     ), deleteExam: combineResolvers(
-      isAdmin, async (parent, { id }, { me, models }) => {
-        models.Exam.deleteOne({ _id: id }, function (err,res) {
-          if (err) {return false} else if (res) {return true} ;
+      isTest, async (parent, { id }, { me, models }) => {
+        let del = null;
+        await models.Exam.deleteOne({ _id: id }, function (err,res) {
+          if (err) {return del = false} else if (res) {return del = true} ;
          
         });
+        return del;
       }
     ),
     initializeExamSolution: combineResolvers(
